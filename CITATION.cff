@@ -3,6 +3,7 @@ message: "If you use this software, please cite it as below."
 title: "EVA: A Python Library for EEG Preprocessing, Quality Assessment, and Multimodal Synchronisation"
 version: 1.2.1
 date-released: 2026-07-02
+doi: 10.5281/zenodo.21140408
 license: MIT
 repository-code: "https://github.com/aquinordg/EVA"
 url: "https://github.com/aquinordg/EVA"

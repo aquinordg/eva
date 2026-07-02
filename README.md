@@ -1,6 +1,7 @@
 [![PyPI](https://img.shields.io/pypi/v/eva-eeg)](https://pypi.org/project/eva-eeg/)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
+[![DOI](https://zenodo.org/badge/1270609760.svg)](https://doi.org/10.5281/zenodo.21140407)
 
 # EVA — EEG data Validation and preprocessing Assistant
 
