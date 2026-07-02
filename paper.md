@@ -82,10 +82,15 @@ EVA makes three contributions that are absent from existing tools:
 The primary target audience is researchers in cognitive neuroscience and
 brain-computer interface development who acquire EEG alongside eye
 tracking or physiological signals and broadcast event markers via Lab
-Streaming Layer (LSL). EVA was developed to support VECA-EEG [@VECAEEG],
-a Unity 6 virtual reality platform for cognitive assessment in which LSL
-markers emitted by the stimulus system serve directly as EVA's epoch class
-labels — with no remapping required.
+Streaming Layer (LSL). General applicability is demonstrated in the
+Validation section below, where EVA's default filter chain is evaluated
+against three independent public datasets spanning SSVEP, resting-state,
+and motor-imagery paradigms. One deployment of EVA is VECA-EEG
+[@VECAEEG], a Unity 6 virtual reality platform for cognitive assessment
+in which LSL markers emitted by the stimulus system serve directly as
+EVA's epoch class labels — with no remapping required — illustrating how
+the library integrates into a live multimodal acquisition pipeline
+beyond static, pre-recorded datasets.
 
 # Installation
 
