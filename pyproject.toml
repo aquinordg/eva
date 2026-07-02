@@ -37,9 +37,9 @@ dependencies = [
 test = ["pytest>=7.0"]
 
 [project.urls]
-Homepage = "https://github.com/aquinordga/EVA"
-Repository = "https://github.com/aquinordga/EVA"
-"Bug Tracker" = "https://github.com/aquinordga/EVA/issues"
+Homepage = "https://github.com/aquinordg/EVA"
+Repository = "https://github.com/aquinordg/EVA"
+"Bug Tracker" = "https://github.com/aquinordg/EVA/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

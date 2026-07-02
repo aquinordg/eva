@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "EVA: A Python Library for EEG Preprocessing, Quality Assessment, and Multimodal Synchronisation"
+version: 1.2.0
+date-released: 2026-06-26
+license: MIT
+repository-code: "https://github.com/aquinordg/EVA"
+url: "https://github.com/aquinordg/EVA"
+type: software
+keywords:
+  - EEG
+  - neuroscience
+  - signal processing
+  - BrainVision
+  - preprocessing
+  - epochs
+authors:
+  - family-names: "Aquino"
+    given-names: "Roberto Douglas Guimarães de"
+    orcid: "https://orcid.org/0000-0002-8486-8354"
+    affiliation: "Universidade de São Paulo, São Paulo, Brazil"
+    email: aquinordga@gmail.com
