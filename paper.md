@@ -45,19 +45,6 @@ applying nominally identical steps to the same recording may obtain
 different results due to implementation details that are rarely reported
 in full [@Luck2014].
 
-Established toolboxes such as MNE-Python [@Gramfort2013] and EEGLAB
-[@Delorme2004] offer comprehensive environments for EEG analysis, but
-their generality places the burden of pipeline assembly on the researcher:
-choosing filter parameters, selecting a reference scheme, deciding on
-artefact rejection thresholds, and wiring the output to downstream formats
-all require domain expertise and produce lab-specific code that is rarely
-shared in full. Specialised tools narrow this gap for specific subtasks —
-`autoreject` [@Jas2017] optimises epoch rejection thresholds via
-cross-validation, and MNE-BIDS [@Appelhoff2019] provides a
-configuration-driven batch workflow for BIDS-organised datasets — but
-neither addresses data-driven filter selection, hardware-level quality
-flags, or multimodal data fusion into a single analysis-ready file.
-
 EVA makes three contributions that are absent from existing tools:
 
 1. **Data-driven filter optimisation.** `find_best_params()` searches a
@@ -92,6 +79,25 @@ EVA's epoch class labels — with no remapping required — illustrating how
 the library integrates into a live multimodal acquisition pipeline
 beyond static, pre-recorded datasets.
 
+# State of the field
+
+Established toolboxes such as MNE-Python [@Gramfort2013] and EEGLAB
+[@Delorme2004] offer comprehensive environments for EEG analysis, but
+their generality places the burden of pipeline assembly on the researcher:
+choosing filter parameters, selecting a reference scheme, deciding on
+artefact rejection thresholds, and wiring the output to downstream formats
+all require domain expertise and produce lab-specific code that is rarely
+shared in full. Specialised tools narrow this gap for specific subtasks —
+`autoreject` [@Jas2017] optimises epoch rejection thresholds via
+cross-validation, and MNE-BIDS [@Appelhoff2019] provides a
+configuration-driven batch workflow for BIDS-organised datasets — but
+neither addresses data-driven filter selection, hardware-level quality
+flags, or multimodal data fusion into a single analysis-ready file. EVA
+does not compete with MNE-Python or EEGLAB as a general analysis
+environment; it occupies the narrower, currently unfilled space between
+raw acquisition and analysis-ready epochs, and can hand off its output to
+either toolbox for any downstream step it does not itself cover.
+
 # Installation
 
 EVA requires Python 3.10 or later. It can be installed directly from the
@@ -102,7 +108,7 @@ pip install eva-eeg
 ```
 
 Core dependencies are MNE-Python [@Gramfort2013], SciPy [@Virtanen2020],
-NumPy [@Harris2020], pandas, h5py, matplotlib, and tqdm.
+NumPy [@Harris2020], pandas, h5py, matplotlib, seaborn, and tqdm.
 
 # Usage
 
@@ -184,7 +190,7 @@ $$\text{score} = -|\text{PaLOSi} - 0.45|$$
 
 The penalty drives the pipeline toward 0.45, the centre of the ideal
 PaLOSi range [0.3, 0.6] identified by Hu et al. [@Hu2025]. SNR is not
-used in scoring: for clean EEG, SNR ≈ 0 dB is the expected outcome
+used in scoring: for clean EEG, SNR $\approx$ 0 dB is the expected outcome
 (most signal energy already lies within the passband), making it
 uninformative as an optimisation criterion. The returned parameter
 dictionary unpacks directly into `preprocess()`.
@@ -197,6 +203,32 @@ This layout is compatible with h5py, NumPy, PyTorch, and TensorFlow
 data loaders without additional parsing. The `sync()` function extends
 the file in-place, so all data for one participant travel as a single
 artefact through the analysis pipeline.
+
+# Software design
+
+EVA is deliberately opinionated rather than fully composable. The public
+API exposes three linear functions instead of a pipeline object with
+interchangeable, reorderable steps, as in MNE-Python or EEGLAB. This
+trades the flexibility to reorder or omit processing stages for a fixed,
+scientifically motivated sequence that is identical across runs and
+laboratories — directly addressing the reproducibility gap described in
+the Statement of need, at the cost of requiring users with non-standard
+pipelines to fork or post-process rather than reconfigure in place.
+
+The same trade-off drives the choice of PaLOSi over SNR as the objective
+in `find_best_params()`: PaLOSi is more expensive to compute over a full
+grid, but it is sensitive to over- and under-preprocessing in a range
+where SNR is flat and uninformative, so the added cost buys a criterion
+that actually discriminates between candidate configurations.
+
+The output format follows the same principle at the storage layer. A
+single gzip-compressed HDF5 file per participant, with a fixed group
+structure (`/eeg/`, `/behavioral/`, `/physio/`, `/metadata/`), sacrifices
+compatibility with directory-based conventions such as BIDS in exchange
+for a self-contained artefact that loads directly into h5py, NumPy,
+PyTorch, and TensorFlow without a companion sidecar-file parser —
+matching the target audience's typical path from acquisition straight
+into a machine-learning framework.
 
 # Tests and continuous integration
 
@@ -229,7 +261,7 @@ well-preprocessed EEG on a standard clinical dataset.
 **MOABB BCI Competition IV 2a (motor imagery).** Training runs from five
 subjects were processed with the 50 Hz notch variant (European mains). All
 five subjects yielded PaLOSi within [0.3, 0.6] (mean = 0.55), achieving
-100% pass rate against the pre-specified threshold of ≥ 50%.
+100% pass rate against the pre-specified threshold of $\geq$ 50%.
 
 # Limitations
 
@@ -242,6 +274,28 @@ downstream tooling such as MNE-Python or EEGLAB. The exhaustive grid
 search in `find_best_params()` scales as the product of all candidate
 lists and may be slow for large grids or long recordings; users should
 reduce the search space via the `grid` parameter when needed.
+
+# Research impact statement
+
+EVA is already used in production as the preprocessing dependency of
+VECA-EEG [@VECAEEG], a Unity 6 virtual reality platform for multimodal
+cognitive assessment, where LSL markers emitted by the stimulus system
+map directly onto EVA's epoch labels with no remapping required. Beyond
+this deployment, adoption of EVA is planned in forthcoming EEG studies at
+the Neurocognitive Engineering Lab, based at the Centro de Engenharia
+Aplicada à Saúde (CEAS), São Carlos School of Engineering (EESC),
+University of São Paulo, where the library's format-agnostic conversion
+and multimodal synchronisation are intended to support protocols beyond
+the virtual-reality use case already validated.
+
+# AI usage disclosure
+
+Generative AI (Claude, Anthropic) was used as a reviewing aid throughout
+the development of EVA: it reviewed source code changes, contributed to
+documentation, and assisted in drafting and revising this manuscript. All
+AI-assisted output was inspected, tested, and edited by the author before
+being incorporated; the author takes full responsibility for the final
+content of the software and this paper.
 
 # Acknowledgements
 
