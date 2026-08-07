@@ -183,8 +183,7 @@ cython_debug/
 raw_data/
 preprocessed_data/
 reports/
-.claude/*
-!.claude/skills/
+.claude/
 CLAUDE.md
 tmp_check.txt
 C-/
