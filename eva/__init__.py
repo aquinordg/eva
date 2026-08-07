@@ -20,6 +20,14 @@ Quick start
 # Steps 1–2 can be skipped: pass any supported file or mne.Raw to preprocess()
 >>> preprocess("subject01.vhdr", optimize=True, report=True)
 
+# Step 4 — plain-language results report (behavioral scores vs. EEG activity)
+>>> from eva import interpret
+>>> interpret("subject01.h5", score_key="accuracy",
+...           bands={"theta": (4, 8), "alpha": (8, 13), "beta": (13, 30)})
+
+# Report in Portuguese (PT-BR), mirroring VECA-EEG's own bilingual support
+>>> interpret("subject01.h5", language="pt-br")
+
 # VECA-EEG integration: align trial CSV with BrainVision recording
 >>> from eva import align_veca
 >>> raw, trials = align_veca("session.vhdr", "VECA_ABCDEF_ts.csv")
@@ -31,6 +39,7 @@ from .preprocess import preprocess
 from .sync import sync
 from .metrics import QualityConfig
 from .align import align_veca
+from .interpret import interpret
 
-__all__ = ["convert", "preprocess", "sync", "QualityConfig", "align_veca"]
+__all__ = ["convert", "preprocess", "sync", "QualityConfig", "align_veca", "interpret"]
 __version__ = "1.2.1"
