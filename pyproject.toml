@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "eva-eeg"
 version = "1.2.1"
-description = "EEG data Validation and preprocessing Assistant"
+description = "EEG data eValuation and preprocessing Assistant"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "AQUINO, R. D. G.", email = "aquinordga@gmail.com" }]

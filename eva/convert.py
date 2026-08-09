@@ -320,7 +320,7 @@ _HTML_TEMPLATE = """\
 </div>
 {quality_table}
 
-<footer>EVA &mdash; EEG data Validation and preprocessing Assistant</footer>
+<footer>EVA &mdash; EEG data eValuation and preprocessing Assistant</footer>
 </body>
 </html>
 """

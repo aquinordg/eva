@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-EVA (EEG data Validation and preprocessing Assistant) is an open-source
+EVA (EEG data eValuation and preprocessing Assistant) is an open-source
 Python library that converts raw EEG recordings into preprocessed,
 quality-assessed, and labelled epoch arrays ready for downstream
 statistical analysis or machine learning. The public API exposes three

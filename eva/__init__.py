@@ -1,5 +1,5 @@
 """
-EVA — EEG data Validation and preprocessing Assistant.
+EVA — EEG data eValuation and preprocessing Assistant.
 
 Quick start
 -----------

@@ -3,9 +3,9 @@
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 [![DOI](https://zenodo.org/badge/1270609760.svg)](https://doi.org/10.5281/zenodo.21140407)
 
-# EVA — EEG data Validation and preprocessing Assistant
+# EVA — EEG data eValuation and preprocessing Assistant
 
-EVA is a Python library for preprocessing EEG (electroencephalography) recordings. It accepts recordings in all formats supported by MNE-Python — BrainVision `.vhdr`, EDF, BDF, EEGLAB `.set`, GDF, EGI `.mff`, Neuroscan `.cnt`, Nihon Kohden `.eeg`, Persyst `.lay`, CURRY `.cdt`, Nicolet, and MNE-native `.fif` — applies a configurable filter chain, evaluates per-channel and recording-level signal quality, saves processed epochs as HDF5 archives (`.h5`), and generates self-contained HTML reports — all with a three-function API.
+EVA is a Python library for preprocessing EEG (electroencephalography) recordings. It accepts recordings in all formats supported by MNE-Python — BrainVision `.vhdr`, EDF, BDF, EEGLAB `.set`, GDF, EGI `.mff`, Neuroscan `.cnt`, Nihon Kohden `.eeg`, Persyst `.lay`, CURRY `.cdt`, Nicolet, and MNE-native `.fif` — applies a configurable filter chain, evaluates per-channel and recording-level signal quality, saves processed epochs as HDF5 archives (`.h5`), and generates self-contained HTML reports — all with a three-function core pipeline (`convert`, `preprocess`, `sync`), plus an optional plain-language results report (`interpret`).
 
 EVA is built on top of [MNE-Python](https://mne.tools), an open-source library for EEG/MEG (magnetoencephalography) analysis.
 
@@ -23,7 +23,7 @@ pip install eva-eeg
 
 ## Workflow overview
 
-EVA follows a three-step pipeline:
+EVA follows a three-step core pipeline, plus an optional fourth step:
 
 ```
 Raw file (.vhdr / .edf / ...)
@@ -34,7 +34,9 @@ Raw file (.vhdr / .edf / ...)
     │
     ▼  sync()      — attach behavioural / physiological data to the .h5
     │
-    ▼  .h5 file ready for your ML / analysis pipeline
+    ├─▶ .h5 file ready for your ML / analysis pipeline
+    │
+    ▼  interpret() — optional plain-language HTML report (score vs. band power)
 ```
 
 ---
@@ -42,7 +44,7 @@ Raw file (.vhdr / .edf / ...)
 ## Quick start
 
 ```python
-from eva import convert, preprocess, sync
+from eva import convert, preprocess, sync, interpret
 import numpy as np
 
 # Step 1 — convert to .fif and generate a bad-channel report
@@ -56,12 +58,16 @@ preprocess("subject01.fif")
 rt_array  = np.array([0.42, 0.38, 0.51, ...])   # reaction time in seconds
 acc_array = np.array([1, 0, 1, ...])             # accuracy (1 = correct)
 sync("subject01.h5", behavioral={"rt": rt_array, "accuracy": acc_array})
+
+# Step 4 (optional) — plain-language report relating score to band power
+interpret("subject01.h5", score_key="accuracy")
 ```
 
 Output files land next to the source file by default:
 - `subject01.fif` — after `convert()`
 - `subject01.h5` — after `preprocess()`
 - `subject01_report/report.html` — HTML quality report
+- `results/subject01_results.html` — plain-language report, after `interpret()`
 
 ---
 
@@ -188,9 +194,62 @@ sync("subject01.h5",
 sync("subject01.h5", behavioral={"rt": corrected_rt}, overwrite=True)
 ```
 
+### `interpret(path, *, ...)`
+
+Generates a plain-language HTML report relating behavioural scores to
+EEG band power, grouped by task/condition. Unlike `preprocess()`'s
+technical quality report, this one is written for readers without a
+signal-processing background (e.g. clinicians, students): no filter
+parameters, spectral entropy, or inferential statistics are shown —
+every value is a 0–100 relative level computed within the recording
+session itself, with no population norm or clinical reference built in.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `path` | str / Path | — | Path to a `.h5` file already processed by `preprocess()` and synchronised with a behavioural score via `sync()` |
+| `score_key` | str | `"score"` | Key under `/behavioral/` holding the numeric score per epoch |
+| `bands` | dict[str, tuple[float, float]] | `{"theta": (4, 8), "alpha": (8, 13), "beta": (13, 30)}` | Band name → `(fmin, fmax)` in Hz |
+| `label_names` | dict[str, str] | `None` | Maps raw condition labels (as stored in `/eeg/label_names`) to human-readable names, e.g. `{"vr_att": "Attention"}`. Conditions absent from the mapping keep their raw label; several raw labels sharing one display name are consolidated into a single card. |
+| `language` | str | `"en"` | Report language: `"en"` or `"pt-br"`. Only the report's own text is translated — condition names and academic references are shown as given. |
+| `output_dir` | str / Path | `results` folder next to `path` | Destination directory for the report |
+
+**Returns** the `Path` to the saved HTML file (`<stem>_results.html`, or
+`<stem>_results_<language>.html` for non-English reports). Also writes a
+`<stem>_summary.csv` with the raw and 0–100 level values per condition.
+
+```python
+from eva import interpret
+
+interpret("subject01.h5")
+
+# Custom score key and frequency bands
+interpret("subject01.h5", score_key="accuracy",
+          bands={"theta": (4.0, 8.0), "alpha": (8.0, 13.0)})
+
+# Human-readable condition names; raw labels that share one name are merged
+interpret("subject01.h5", label_names={"vr_att": "Attention", "vr_abs": "Abstraction"})
+
+# Portuguese (PT-BR) report
+interpret("subject01.h5", language="pt-br")
+```
+
+The report includes, per task/condition: a card with the cognitive score
+and each band's activity level (all 0–100, relative to this session
+only); a "What Do These Bands Mean?" glossary explaining what each band
+is commonly associated with in the literature, with linked references;
+and a collapsible "Technical details" section with raw (non-normalised)
+values and a per-electrode power breakdown. Electrode region labels are
+inferred from standard 10-20/10-10 naming (e.g. "FC1" → Fronto-Central)
+and work with any montage — electrodes that don't follow this
+convention are listed as "Not classified" rather than guessed at.
+
+**Raises:**
+- `FileNotFoundError` — if `path` does not exist
+- `ValueError` — if `language` is unsupported, the file lacks `/eeg` or the requested `score_key` under `/behavioral`, or a band exceeds the recording's Nyquist frequency
+
 ### `align_veca(vhdr_path, csv_path)`
 
-Aligns a VECA-EEG trial CSV with a BrainVision recording, using the
+Aligns a [VECA-EEG](https://github.com/aquinordg/VECA-EEG) trial CSV with a BrainVision recording, using the
 Windows system clock as the common time base. Injects trial annotations
 into the returned `mne.Raw` object so that `preprocess()` can epoch
 around each cognitive task.
@@ -508,11 +567,12 @@ paradigms.
 
 ```
 eva/
-├── __init__.py    Public API: convert, preprocess, sync, QualityConfig, align_veca
+├── __init__.py    Public API: convert, preprocess, sync, QualityConfig, align_veca, interpret
 ├── align.py       align_veca() — VECA-EEG CSV-to-BrainVision alignment
 ├── convert.py     Format normalisation to .fif
 ├── preprocess.py  Filter chain, epoching, .h5 output, HTML report
 ├── sync.py        Attach behavioural/physio data to an existing .h5
+├── interpret.py   interpret() — plain-language results report (score vs. band power)
 ├── optimizer.py   Grid search over filter strategies
 ├── filters.py     DCDetrend, ButterworthFilter, NotchFilter,
 │                  AverageReference, SoftClipper
