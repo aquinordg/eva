@@ -421,7 +421,7 @@ erases genuine neural activity (high PaLOSi).
 | > 0.6 | Over-filtered — too much signal structure has been removed |
 
 The HTML report shows a colour-coded PaLOSi card with an explanatory
-message. Reference: [Hu et al. (2025) *NeuroImage* 121247](https://doi.org/10.1016/j.neuroimage.2025.121247).
+message. Reference: [Hu et al. (2025) *NeuroImage* 121122](https://www.sciencedirect.com/science/article/pii/S1053811925001247).
 
 ---
 

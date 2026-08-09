@@ -17,7 +17,7 @@ Metrics
 
 References
 ----------
-[1] PaLOSi: Hu et al. (2025) NeuroImage https://doi.org/10.1016/j.neuroimage.2025.121247
+[1] PaLOSi: Hu et al. (2025) NeuroImage https://doi.org/10.1016/j.neuroimage.2025.121122
 [2] Hjorth, B. (1970). EEG analysis based on time domain properties.
     Electroencephalography and Clinical Neurophysiology, 29(3), 306-310.
 """
@@ -190,7 +190,7 @@ def palosi(
 
     References
     ----------
-    [1] Hu et al. (2025) NeuroImage https://doi.org/10.1016/j.neuroimage.2025.121247
+    [1] Hu et al. (2025) NeuroImage https://doi.org/10.1016/j.neuroimage.2025.121122
     """
     n_ch, n_samp = data.shape
     if n_ch < 2:

@@ -102,7 +102,7 @@ _GLOSSARY: List[tuple] = [
      "Values below 0.3 suggest insufficient denoising (heterogeneous spectra due to "
      "retained noise). Values above 0.6 suggest over-preprocessing (channels become "
      "spectrally too similar because brain signals were removed). "
-     "Based on Hu et al. (2025) NeuroImage https://doi.org/10.1016/j.neuroimage.2025.121247"),
+     "Based on Hu et al. (2025) NeuroImage https://doi.org/10.1016/j.neuroimage.2025.121122"),
     ("Log-Spectra Deviation — Per-Channel Spectral Outlier Score",
      "Measures how far each individual channel's frequency spectrum deviates from "
      "the median spectrum of all channels. A high score means that channel looks "
