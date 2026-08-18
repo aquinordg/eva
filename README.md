@@ -17,7 +17,7 @@ EVA is built on top of [MNE-Python](https://mne.tools), an open-source library f
 pip install eva-eeg
 ```
 
-**Requirements:** Python 3.10+, MNE-Python, NumPy, SciPy, pandas, h5py.
+**Requirements:** Python 3.10+, MNE-Python, NumPy, SciPy, pandas, h5py, matplotlib, seaborn, tqdm.
 
 ---
 
